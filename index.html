@@ -220,6 +220,10 @@
             font-size: 12px;
             color: #cbd5e1;
             line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .column {
@@ -345,6 +349,111 @@
             margin-bottom: 12px;
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border-radius: 12px 12px 0 0;
+            padding: 20px;
+            width: 100%;
+            max-width: 100%;
+            border: 1px solid #334155;
+            border-bottom: none;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            min-width: auto;
+            min-height: auto;
+            flex-shrink: 0;
+        }
+
+        .modal-meta {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .modal-section {
+            margin-bottom: 16px;
+        }
+
+        .modal-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .modal-value {
+            font-size: 13px;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #334155;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -385,6 +494,15 @@
             .content {
                 padding: 8px;
             }
+
+            .modal.active {
+                padding: 0;
+            }
+
+            .modal-content {
+                border-radius: 12px 12px 0 0;
+                max-height: 85vh;
+            }
         }
     </style>
 </head>
@@ -420,7 +538,7 @@
             <div class="column">
                 <div class="column-header">✅ Ready <span class="column-count">1</span></div>
                 <div class="column-body">
-                    <div class="task-card">
+                    <div class="task-card" onclick="openModal('task_001')">
                         <div class="task-header">
                             <div class="task-title">LinkedIn Post: AI Executive Assistants</div>
                             <span class="task-priority high">HIGH</span>
@@ -509,20 +627,90 @@
         </div>
     </div>
 
+    <!-- TASK DETAIL MODAL -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Task Title</div>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+
+            <div class="modal-meta">
+                <span id="modalAgent">Assigned to: Growth Agent</span> • <span id="modalCreated">Created: Today</span>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-label">Description</div>
+                <div class="modal-value" id="modalDescription">Full task description goes here...</div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-label">Status</div>
+                <div class="modal-value" id="modalStatus">Ready</div>
+            </div>
+
+            <div class="modal-section">
+                <div class="modal-label">Priority</div>
+                <div class="modal-value" id="modalPriority">High</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()">Close</button>
+                <button class="btn btn-primary" onclick="assignTask()">Assign</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Task data
+        const tasks = {
+            'task_001': {
+                title: 'LinkedIn Post: AI Executive Assistants',
+                description: 'Write a feel-good LinkedIn style post introducing AI executive assistants. Explain use cases: email management, task automation, financial tracking, content creation, family scheduling, ADHD support. Show how it transforms productivity and focus. Tone: inspiring, relatable, founder-friendly.',
+                agent: 'Growth Agent',
+                created: 'Today',
+                status: 'Ready',
+                priority: 'High'
+            }
+        };
+
         function switchTab(tabName) {
-            // Hide all content
             document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
-            
-            // Remove active from all tabs
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            
-            // Show selected content
             document.getElementById(tabName).classList.add('active');
-            
-            // Mark tab as active
             event.target.classList.add('active');
         }
+
+        function openModal(taskId) {
+            const task = tasks[taskId];
+            if (!task) return;
+
+            document.getElementById('modalTitle').textContent = task.title;
+            document.getElementById('modalAgent').textContent = 'Assigned to: ' + task.agent;
+            document.getElementById('modalCreated').textContent = 'Created: ' + task.created;
+            document.getElementById('modalDescription').textContent = task.description;
+            document.getElementById('modalStatus').textContent = task.status;
+            document.getElementById('modalPriority').textContent = task.priority;
+
+            document.getElementById('taskModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function assignTask() {
+            alert('Task assignment coming soon!');
+        }
+
+        // Close modal on backdrop click
+        document.getElementById('taskModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
 
         // Prevent zoom on double tap
         let lastTouchEnd = 0;
