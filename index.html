@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control - Agent Workforce Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid #334155;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .status {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 240px;
+            background: #1e293b;
+            border-right: 1px solid #334155;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .agent-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .agent-card:hover {
+            background: #1e293b;
+            border-color: #475569;
+        }
+
+        .agent-card.active {
+            background: #1e40af;
+            border-color: #3b82f6;
+            color: #dbeafe;
+        }
+
+        .agent-status {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .board-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .board-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .board-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: #e2e8f0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #334155;
+            border-color: #64748b;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .board {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            padding: 20px 24px;
+            overflow-x: auto;
+        }
+
+        .column {
+            background: #1e293b;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            min-width: 280px;
+        }
+
+        .column-header {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            letter-spacing: 0.5px;
+        }
+
+        .column-count {
+            float: right;
+            background: #0f172a;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .column-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .task-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .task-card:hover {
+            border-color: #64748b;
+            background: #1e293b;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .task-agent {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .task-priority {
+            display: inline-block;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: #1e3a5f;
+            color: #93c5fd;
+            margin-right: 4px;
+        }
+
+        .task-priority.high {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .empty-column {
+            color: #64748b;
+            font-size: 13px;
+            text-align: center;
+            padding: 24px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .chat-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            height: 400px;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .chat-header {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-message {
+            font-size: 12px;
+            padding: 8px;
+            background: #0f172a;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+
+        .chat-message.user {
+            color: #93c5fd;
+        }
+
+        .chat-message.agent {
+            color: #86efac;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Mission Control</h1>
+        <div class="header-right">
+            <div class="status">
+                <div class="dot"></div>
+                <span>5 agents active</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Agents</div>
+                <div class="agent-card active">
+                    🤖 Mario (Jarvis)
+                    <div class="agent-status">Orchestrator</div>
+                </div>
+                <div class="agent-card">
+                    💰 Finance
+                    <div class="agent-status">Spec ready</div>
+                </div>
+                <div class="agent-card">
+                    📱 Social
+                    <div class="agent-status">Spec ready</div>
+                </div>
+                <div class="agent-card">
+                    👨‍👩‍👧‍👦 Personal
+                    <div class="agent-status">Spec ready</div>
+                </div>
+                <div class="agent-card">
+                    📈 Growth
+                    <div class="agent-status">Spec ready</div>
+                </div>
+                <div class="agent-card">
+                    🛠 Product
+                    <div class="agent-status">Spec ready</div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Quick Actions</div>
+                <button class="btn" style="width: 100%;">+ New Task</button>
+                <button class="btn" style="width: 100%; margin-top: 8px;">📊 Analytics</button>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="board-header">
+                <h2>Agent Workflow Board</h2>
+                <div class="board-controls">
+                    <button class="btn">Filter</button>
+                    <button class="btn">View</button>
+                    <button class="btn btn-primary">+ Create Task</button>
+                </div>
+            </div>
+
+            <div class="board">
+                <div class="column">
+                    <div class="column-header">📋 Backlog <span class="column-count">0</span></div>
+                    <div class="column-body">
+                        <div class="empty-column">No tasks yet</div>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="column-header">✅ Ready <span class="column-count">0</span></div>
+                    <div class="column-body">
+                        <div class="empty-column">Waiting for assignment</div>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="column-header">🔄 In Progress <span class="column-count">0</span></div>
+                    <div class="column-body">
+                        <div class="empty-column">No active work</div>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="column-header">👀 Review <span class="column-count">0</span></div>
+                    <div class="column-body">
+                        <div class="empty-column">Waiting for approval</div>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="column-header">✨ Complete <span class="column-count">0</span></div>
+                    <div class="column-body">
+                        <div class="empty-column">No completed tasks</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-panel">
+        <div class="chat-header">💬 Agent Chat Room</div>
+        <div class="chat-messages">
+            <div class="chat-message agent">
+                System ready. Awaiting first task assignment.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mission Control Dashboard - Real-time updates
+        console.log('Mission Control Dashboard loaded');
+        console.log('Agents: Finance, Social, Personal, Growth, Product');
+        console.log('Board data loading from: /mission-control/tasks.json');
+    </script>
+</body>
+</html>
