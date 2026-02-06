@@ -536,7 +536,7 @@
             </div>
 
             <div class="column">
-                <div class="column-header">✅ Ready <span class="column-count">1</span></div>
+                <div class="column-header">✅ Ready <span class="column-count">2</span></div>
                 <div class="column-body">
                     <div class="task-card" onclick="openModal('task_001')">
                         <div class="task-header">
@@ -545,6 +545,14 @@
                         </div>
                         <div class="task-meta">Assigned to: Growth Agent • Created: Today</div>
                         <div class="task-description">Write a feel-good LinkedIn style post introducing AI executive assistants. Show how it transforms productivity and focus.</div>
+                    </div>
+                    <div class="task-card" onclick="openModal('task_002')">
+                        <div class="task-header">
+                            <div class="task-title">Competitive Analysis: Wove vs Commodity.ai</div>
+                            <span class="task-priority high">HIGH</span>
+                        </div>
+                        <div class="task-meta">Assigned to: Product Agent • Created: Today</div>
+                        <div class="task-description">CargoMode vs YC competitors. Feature comparison, positioning gaps, strengths analysis. TinySeed pitch preparation.</div>
                     </div>
                 </div>
             </div>
@@ -668,6 +676,14 @@
                 title: 'LinkedIn Post: AI Executive Assistants',
                 description: 'Write a feel-good LinkedIn style post introducing AI executive assistants. Explain use cases: email management, task automation, financial tracking, content creation, family scheduling, ADHD support. Show how it transforms productivity and focus. Tone: inspiring, relatable, founder-friendly.',
                 agent: 'Growth Agent',
+                created: 'Today',
+                status: 'Ready',
+                priority: 'High'
+            },
+            'task_002': {
+                title: 'Competitive Analysis: Wove.ai vs Commodity.ai vs CargoMode',
+                description: 'CargoMode positioning vs YC-funded competitors.\n\nSTRENGTHS:\n- Only one focused on freight forwarding\n- CargoWise integration\n- Usage-based pricing\n\nGAPS:\n- No tariff/duty calculation (Wove)\n- No risk scoring/compliance\n- No document vault\n\nWove.ai: Tariff/duty focus, 10x faster\nCommodity.ai: Workflow automation, document vault\n\nPOSITIONING: CargoMode is purpose-built for freight forwarders. Competitors are tariff-heavy or general commodity platforms.',
+                agent: 'Product Agent',
                 created: 'Today',
                 status: 'Ready',
                 priority: 'High'
